@@ -1,4 +1,5 @@
 var path = require('path');
+var ExtractTextPlugin = require ('extract-text-webpack-plugin');
 
 module.exports = {
 	entry: './src/main/js/index.js',
@@ -9,6 +10,9 @@ module.exports = {
 		path: __dirname,
 		filename: './src/main/resources/static/built/bundle.js'
 	},
+	plugins: [
+		new ExtractTextPlugin('bundle.css'),
+	],
 	module: {
 		rules: [
 			{
@@ -20,6 +24,10 @@ module.exports = {
 						presets: ["@babel/preset-env", "@babel/preset-react"]
 					}
 				}]
+			},
+			{
+				test: /\.(sa|sc|c)ss$/,
+				use: ["style-loader", "css-loader", "sass-loader", "postcss-loader"]
 			}
 		]
 	}

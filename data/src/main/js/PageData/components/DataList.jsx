@@ -1,5 +1,8 @@
 import React from 'react';
 import { callApi } from '../../common/apiMiddleware';
+import {DataTable} from 'primereact/datatable';
+import {Column} from 'primereact/column';
+
 
 const apiUrls = ({
     getData: '/api/sources/',
@@ -20,7 +23,7 @@ export class DataList extends React.Component {
     loadData = () => {
         callApi(apiUrls.getData).then((data) => {
             this.setState({
-                    tableData: data,
+                    tableData: data._embedded.sources,
                 });
         }).catch(() => {
         });
@@ -43,7 +46,12 @@ export class DataList extends React.Component {
 
         return (
             <div>
-                {dataText('тут будет таблица с данными')}
+                {dataText('Пример получения данных с сервера.')}
+                <DataTable value={this.state.tableData}>
+                    <Column field="id" header="id" />
+                    <Column field="name" header="name" />
+                    <Column field="value" header="value" />
+                </DataTable>
             </div>
         );
     }
