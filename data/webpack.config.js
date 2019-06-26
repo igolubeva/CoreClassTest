@@ -1,7 +1,7 @@
 var path = require('path');
 
 module.exports = {
-	entry: './src/main/js/app.js',
+	entry: './src/main/js/index.js',
 	devtool: 'sourcemaps',
 	cache: true,
 	mode: 'development',
@@ -12,7 +12,7 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: path.join(__dirname, '.'),
+				test: /\.(js|jsx)$/,
 				exclude: /(node_modules)/,
 				use: [{
 					loader: 'babel-loader',
