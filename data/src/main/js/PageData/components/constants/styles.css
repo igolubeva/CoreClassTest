@@ -1,0 +1,12 @@
+.header-text{
+    padding: 10px;
+    font-size: 18px;
+}
+.control-item{
+    display: flex;
+    padding: 10px;
+}
+.label-control{
+    font-size: 14px;
+    padding-right: 10px;
+}

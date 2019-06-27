@@ -49,5 +49,6 @@
     "file-loader": "^4.0.0",
     "url-loader": "^2.0.1",
     "image-webpack-loader": "^5.0.0"
-  }
+  },
+  "homepage": "."
 }
