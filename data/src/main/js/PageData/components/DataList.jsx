@@ -11,7 +11,7 @@ import './constants/styles.css';
 const apiUrls = ({
     getData: (page, size) => `/api/sources?page=${page}&size=${size}`,
     getDataSort: (page, size, sort) => `/api/sources?page=${page}&size=${size}&sort=${sort}`,
-    filterbyName: (name) => `api/sources/search/findByName?name=${name}`,
+    filterbyName: (name) => `api/sources/search/findByNameContainingIgnoreCase?name=${name}`,
 });
 const sortSelectItems = [
     {label: 'name', value: 'name'},
@@ -25,6 +25,7 @@ export class DataList extends React.Component {
         startPage: 1,
         nameFilter: '',
         paginator: true,
+        first: 0,
     };
 
     componentDidMount() {
@@ -40,6 +41,7 @@ export class DataList extends React.Component {
                 totalRecords: data.page.totalElements,
                 loading: false,
                 pagination: true,
+                first: data.page.number*data.page.size,
                 });
         }).catch(() => {
         });
@@ -121,6 +123,7 @@ export class DataList extends React.Component {
                     value={this.state.tableData}
                     paginator={this.state.paginator}
                     rows={this.state.rows}
+                    first={this.state.first}
                     totalRecords={this.state.totalRecords}
                     lazy={true}
                     onPage={this.onPage}
