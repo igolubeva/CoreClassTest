@@ -3,8 +3,8 @@ import { callApi } from '../../common/apiMiddleware';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
-import {Button} from 'primereact/button';
-import {Dropdown} from 'primereact/dropdown';
+import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
 import './constants/styles.css';
 
 

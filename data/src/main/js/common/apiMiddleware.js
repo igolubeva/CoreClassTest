@@ -14,20 +14,20 @@ function status(response) {
     if (response.ok) {
         return response.text().then(
             content => (new Promise((resolve, reject) => {
-                    if (content) {
-                        const contentType = response.headers.get('content-type');
-                        if (!(contentType && contentType.toLowerCase().includes('application/json'))) {
-                            const errorMessage = `no json headers in ${response.url}. contentType: ${contentType}.`;
-                            console.error(errorMessage);
-                        }
+                if (content) {
+                    const contentType = response.headers.get('content-type');
+                    if (!(contentType && contentType.toLowerCase().includes('application/json'))) {
+                        const errorMessage = `no json headers in ${response.url}. contentType: ${contentType}.`;
+                        console.error(errorMessage);
                     }
-                    try {
-                        const j = content ? JSON.parse(content) : {};
-                        resolve(j);
-                    } catch (e) {
-                        reject({ error: 'bad JSON content', rawResponse: response });
-                    }
-                })
+                }
+                try {
+                    const j = content ? JSON.parse(content) : {};
+                    resolve(j);
+                } catch (e) {
+                    reject({ error: 'bad JSON content', rawResponse: response });
+                }
+            })
             ));
     }
 
@@ -137,7 +137,7 @@ export default store => next => (action) => {
     const defaultCallback = () => {};
     const defaultPayload = d => d;
     const errorPayload = (d) => {
-        const { rawResponse, ...result } = d;
+        const {...result } = d;
         return result;
     };
 

@@ -10,6 +10,6 @@ import '../resources/static/bundle.css';
 
 
 ReactDOM.render(
-	<DataList />,
-	document.getElementById('react')
+    <DataList />,
+    document.getElementById('react')
 );
