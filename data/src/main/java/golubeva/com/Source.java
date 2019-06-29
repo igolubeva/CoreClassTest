@@ -18,23 +18,30 @@ package golubeva.com;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-
+import javax.persistence.NamedQuery;
 import lombok.Data;
 
-// tag::code[]
+@NamedQuery(name = "Source.findBySearch",
+		query = "SELECT s FROM Source s WHERE " +
+				"LOWER(s.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+				"LOWER(s.svalue) LIKE LOWER(CONCAT('%', :searchTerm, '%'))"
+)
 @Data
 @Entity
 public class Source {
-
 	private @Id @GeneratedValue Long id;
 	private String name;
-	private String value;
+	private Number value;
+	private Number sourceId;
+	private String svalue;
+
 
 	private Source() {}
 
-	public Source(String name, String value) {
+	public Source(Number sourceId, String name, Number value) {
 		this.name = name;
 		this.value = value;
+		this.sourceId = sourceId;
+		this.svalue = value.toString();
 	}
 }
-// end::code[]

@@ -11,7 +11,7 @@ import './constants/styles.css';
 const apiUrls = ({
     getData: (page, size) => `/api/sources?page=${page}&size=${size}`,
     getDataSort: (page, size, sort) => `/api/sources?page=${page}&size=${size}&sort=${sort}`,
-    filterbyName: (name) => `api/sources/search/findByNameContainingIgnoreCase?name=${name}`,
+    filterbyName: (name) => `api/sources/search/findBySearch?searchTerm=${name}`,
 });
 const sortSelectItems = [
     {label: 'name', value: 'name'},
@@ -22,10 +22,11 @@ export class DataList extends React.Component {
     state = {
         tableData: [],
         rows: 2,
-        startPage: 1,
+        startPage: 0,
         nameFilter: '',
         paginator: true,
         first: 0,
+        rowsNumberInput: 2,
     };
 
     componentDidMount() {
@@ -41,6 +42,7 @@ export class DataList extends React.Component {
                 totalRecords: data.page.totalElements,
                 loading: false,
                 pagination: true,
+                rows: data.page.size,
                 first: data.page.number*data.page.size,
                 });
         }).catch(() => {
@@ -54,6 +56,7 @@ export class DataList extends React.Component {
         });
         this.loadData(event.page, this.state.rows);
     };
+
     onSort = (event) => {
         callApi(apiUrls.getDataSort(
             this.state.startPage, this.state.rows, event.value)).then((data) => {
@@ -65,6 +68,7 @@ export class DataList extends React.Component {
         }).catch(() => {
         });
     };
+
     handleClickFilter = () => {
         if(this.state.nameFilter) {
             callApi(apiUrls.filterbyName(this.state.nameFilter)).then((data) => {
@@ -73,10 +77,7 @@ export class DataList extends React.Component {
                 });
             }).catch(() => {
             });
-            this.setState({
-                nameFilter: '',
-                paginator: false,
-            });
+
         }else{
             this.loadData(this.state.startPage, this.state.rows);
         }
@@ -86,6 +87,14 @@ export class DataList extends React.Component {
         this.setState({
             nameFilter: e.target.value,
         });
+    };
+    rowsNumberChange = (e) => {
+        this.setState({
+            rowsNumberInput: parseInt(e.target.value, 10),
+        });
+    };
+    onRowsNumberChange = (e) => {
+        this.loadData(this.state.firstPage, this.state.rowsNumberInput);
     };
     render() {
         const dataText = text => (
@@ -98,11 +107,21 @@ export class DataList extends React.Component {
                 <InputText
                     id='float-input'
                     style={{ width: '100%' }}
+                    value={this.state.nameFilter}
                     className="ui-column-filter"
                     onChange={this.onNameFilterChange} />
                 <label htmlFor="float-input">Введите name</label>
             </span>
                 );
+        const rowsNumberInput = (
+             <span className="p-float-label">
+                 <InputText
+                     id='float-input'
+                     style={{ width: '100%' }}
+                     className="ui-column-filter"
+                     onChange={this.rowsNumberChange} />
+             </span>
+             );
         return (
             <div>
                 {dataText('Задача: В браузере отрисовать таблицу с данными сервера.')}
@@ -111,6 +130,11 @@ export class DataList extends React.Component {
                     {nameFilter}
                     <Button label="Ок" onClick={this.handleClickFilter} />
                 </div>
+                <div className="control-item">
+                     <span className="label-control">Количество записей на странице:</span>
+                     {rowsNumberInput}
+                     <Button label="Ок" onClick={this.onRowsNumberChange} />
+                 </div>
                 <div className="control-item">
                     <span className="label-control">Сортировка:</span>
                     <Dropdown
@@ -129,7 +153,7 @@ export class DataList extends React.Component {
                     onPage={this.onPage}
                     loading={this.state.loading}
                 >
-                    <Column field="id" header="id" />
+                    <Column field="sourceId" header="id" />
                     <Column field="name" header="name" />
                     <Column field="value" header="value" />
                 </DataTable>

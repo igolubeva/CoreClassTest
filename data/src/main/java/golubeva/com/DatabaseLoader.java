@@ -19,16 +19,16 @@ public class DatabaseLoader implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
-		this.repository.save(new Source("AAA", "1.02"));
-		this.repository.save(new Source("AAB", "1.5"));
-		this.repository.save(new Source("AAC", "2"));
-		this.repository.save(new Source("AAD", "2"));
-		this.repository.save(new Source("AAE", "1.9"));
-		this.repository.save(new Source("AAF", "1.53"));
-		this.repository.save(new Source("AAG", "1.6"));
-		this.repository.save(new Source("AAH", "1.46"));
-		this.repository.save(new Source("AAI", "1.01"));
-		this.repository.save(new Source("AAJ", "1.08"));
+		this.repository.save(new Source(1,"AAA", 1.02));
+		this.repository.save(new Source( 2,"AAB", 1.5));
+		this.repository.save(new Source( 3, "AAC", 2));
+		this.repository.save(new Source( 4, "AAD", 2));
+		this.repository.save(new Source( 5, "AAE", 1.9));
+		this.repository.save(new Source( 6, "AAF", 1.53));
+		this.repository.save(new Source( 7, "AAG", 1.6));
+		this.repository.save(new Source(8, "AAH", 1.46));
+		this.repository.save(new Source( 9, "AAI", 1.01));
+		this.repository.save(new Source( 10, "AAJ", 1.08));
 	}
 }
 // end::code[]
