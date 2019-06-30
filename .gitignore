@@ -1,5 +1,6 @@
 *.iml
 .idea
+.DS_Store
 target
 bower_components
 node_modules
