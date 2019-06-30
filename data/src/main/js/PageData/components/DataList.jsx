@@ -9,10 +9,10 @@ import './constants/styles.css';
 
 
 const apiUrls = ({
-    getData: (page, size) => `/api/sources?page=${page}&size=${size}`,
     getDataSort: (page, size, sort) => `/api/sources?page=${page}&size=${size}&sort=${sort}`,
     filterByName: (name,page, size, sort) => `api/sources/search/findBySearch?searchTerm=${name}&page=${page}&size=${size}&sort=${sort}`,
 });
+
 const sortSelectItems = [
     {label: 'id', value: 'id'},
     {label: 'name', value: 'name'},
@@ -22,38 +22,31 @@ export class DataList extends React.Component {
 
     state = {
         tableData: [],
-        rows: 2,
         nameFilter: '',
         paginator: true,
         first: 0,
+        rows: 2,
         rowsNumberInput: 2,
         ascOrder: true,
         sortValue: 'id',
         curPage: 0,
+        sortDirection: {
+            id: 'asc',
+            value: 'asc',
+            name: 'asc',
+        },
+        totalElements: 0,
     };
 
     componentDidMount() {
-        this.loadData(this.state.curPage, this.state.rows);
+        this.loadSortData();
     }
 
-    getQueryParams = (baseUrl, page='', size='', sort='') => {
-        let url = baseUrl;
-        return url;
+    getRowsCount = () => {
+        return this.state.rowsNumberInput ? this.state.rowsNumberInput : this.state.rows;
     };
-
-    loadData = (page, size) => {
-        callApi(apiUrls.getData(page, size)).then((data) => {
-            this.setState({
-                tableData: data._embedded.sources,
-                totalRecords: data.page.totalElements,
-                loading: false,
-                pagination: true,
-                rows: data.page.size,
-                first: data.page.number*data.page.size,
-                });
-        }).catch(() => {
-        });
-
+    getPage = (page, rows) => {
+        return page >= (this.state.totalElements/rows) ? 0 : page;
     };
 
     onPage = (event) => {
@@ -69,21 +62,28 @@ export class DataList extends React.Component {
     };
 
     onSort = (event) => {
+        const sortValue = event.value;
+        const newDir = this.state.sortDirection[sortValue]=='asc' ? 'desc' : 'asc';
         this.setState({
                 loading: true,
-                sortValue: event.value,
+                sortValue,
                 ascOrder: !this.state.ascOrder,
+                sortDirection: {
+                ...this.state.sortDirection,
+                [sortValue]: newDir},
         });
         if(this.state.nameFilter) {
             this.loadFilterData();
         }else{
-            this.loadSortData(this.state.curPage, event.value);
+            this.loadSortData(this.state.curPage, event.value, newDir);
         }
     };
-    loadSortData = (page=this.state.curPage, sortValue=this.state.sortValue) => {
-        const sortOrder = this.state.ascOrder ? 'ask' : 'desc';
+    loadSortData = (page=this.state.curPage, sortValue=this.state.sortValue,
+        sortOrder=this.state.sortDirection[sortValue]) => {
+        const rows = this.getRowsCount();
+        page = this.getPage(page, rows);
         callApi(apiUrls.getDataSort(
-            page, this.state.rows, sortValue.concat(',', sortOrder))).then((data) => {
+            page, rows, sortValue.concat(',', sortOrder))).then((data) => {
                 this.setState({
                     tableData: data._embedded.sources,
                     totalRecords: data.page.totalElements,
@@ -91,13 +91,16 @@ export class DataList extends React.Component {
                     pagination: true,
                     rows: data.page.size,
                     first: data.page.number*data.page.size,
+                    totalElements: data.page.totalElements,
                 });
             }).catch(() => {
         });
     };
     loadFilterData = (page=this.state.curPage) => {
         const sort = this.state.sortValue;
-        callApi(apiUrls.filterByName(this.state.nameFilter, page, this.state.rows, sort)).then((data) => {
+        const rows = this.getRowsCount();
+        page = this.getPage(page, rows);
+        callApi(apiUrls.filterByName(this.state.nameFilter, page, rows, sort)).then((data) => {
             this.setState({
                 tableData: data._embedded.sources,
                 totalRecords: data.page.totalElements,
@@ -105,20 +108,24 @@ export class DataList extends React.Component {
                 pagination: true,
                 rows: data.page.size,
                 first: data.page.number * data.page.size,
+                totalElements: data.page.totalElements,
             });
         }).catch(() => {
     });
+    };
+    updateData = () => {
+        if(this.state.nameFilter) {
+            this.loadFilterData();
+
+        }else {
+            this.loadSortData();
+        }
     };
     handleClickFilter = () => {
         this.setState({
             loading: true,
         });
-        if(this.state.nameFilter) {
-            this.loadFilterData();
-
-        }else {
-            this.loadData(this.state.curPage, this.state.rows);
-        }
+        this.updateData();
 
     };
     onNameFilterChange = (e) => {
@@ -127,12 +134,23 @@ export class DataList extends React.Component {
         });
     };
     rowsNumberChange = (e) => {
-        this.setState({
-            rowsNumberInput: parseInt(e.target.value, 10),
-        });
+        const val = parseInt(e.target.value, 10);
+        if (val){
+            this.setState({
+                rowsNumberInput: val,
+            });
+        }else{
+            this.setState({
+                rowsNumberInput: '',
+            });
+        }
     };
-    onRowsNumberChange = (e) => {
-        this.loadData(this.state.firstPage, this.state.rowsNumberInput);
+    changeRowsNumber = () => {
+        if(this.state.nameFilter) {
+            this.loadFilterData();
+        }else {
+            this.loadSortData();
+        }
     };
     onInputFilterKeyDown = (event) => {
         if(event.key === 'Enter'){
@@ -140,22 +158,26 @@ export class DataList extends React.Component {
         }
     };
     onRowNumberKeyDown = (event) => {
-            if(event.key === 'Enter'){
-                this.loadData(this.state.firstPage, this.state.rowsNumberInput);
-            }
-        };
-    valueTemplate(option) {
+        if(event.key === 'Enter'){
+            this.updateData();
+        }
+    };
+    getSortDirection = (key) => {
+        return this.state.sortDirection[key] == 'asc' ?  '↑' : '↓'
+    };
+    valueTemplate = (option) => {
+        const sortDirection = this.getSortDirection(option.value);
         if (!option.value) {
             return option.label;
         }
         else {
             return (
                 <div className="p-clearfix">
-                    <span style={{float:'right', margin:'.5em .25em 0 0'}}>{option.label} ↑</span>
+                    <span style={{float:'right', margin:'.5em .25em 0 0'}}>{option.label} {sortDirection}</span>
                 </div>
             );
         }
-    }
+    };
     render() {
         const dataText = text => (
             <div className="header-text">
@@ -182,33 +204,35 @@ export class DataList extends React.Component {
                      style={{ width: '100%' }}
                      className="ui-column-filter"
                      onChange={this.rowsNumberChange}
-                     value={ this.state.rowsNumberInput }
+                     value={ this.state.rowsNumberInput ? this.state.rowsNumberInput : '' }
                      onKeyDown={ (e) => { this.onRowNumberKeyDown(e) } }
                  />
+                 <label htmlFor="float-input">Введите целое число</label>
              </span>
              );
         return (
             <div>
                 {dataText('Задача: В браузере отрисовать таблицу с данными сервера.')}
-                <div className="control-item">
-                    <span className="label-control">Фильтр:</span>
-                    {nameFilter}
-                    <Button label="Ок" onClick={this.handleClickFilter} />
-                </div>
-                <div className="control-item">
-                     <span className="label-control">Количество записей на странице:</span>
-                     {rowsNumberInput}
-                     <Button label="Ок" onClick={this.onRowsNumberChange} />
-                 </div>
-                <div className="control-item">
-                    <span className="label-control">Сортировка:</span>
-                    <Dropdown
-                        value={this.state.sortValue}
-                        options={sortSelectItems}
-                        onChange={(e) => {this.onSort(e)}}
-                        placeholder="Сортировать по..."
-                        itemTemplate={this.valueTemplate}
-                        />
+                <div className="main-form">
+                    <div className="control-item">
+                        <span className="label-control">Фильтр:</span>
+                        {nameFilter}
+                        <Button label="Ок" onClick={this.handleClickFilter} />
+                    </div>
+                    <div className="control-item">
+                         <span className="label-control">Количество записей на странице:</span>
+                         {rowsNumberInput}
+                         <Button label="Ок" onClick={this.updateData} />
+                     </div>
+                    <div className="control-item">
+                        <span className="label-control">Сортировка:</span>
+                        <Dropdown
+                            options={sortSelectItems}
+                            onChange={(e) => {this.onSort(e)}}
+                            placeholder="Сортировать по..."
+                            itemTemplate={this.valueTemplate}
+                            />
+                    </div>
                 </div>
                 <DataTable
                     value={this.state.tableData}

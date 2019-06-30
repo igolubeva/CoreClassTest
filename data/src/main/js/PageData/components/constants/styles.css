@@ -1,5 +1,5 @@
 .header-text{
-    padding: 10px;
+    padding: 10px 10px 20px 10px;
     font-size: 18px;
 }
 .control-item{
@@ -12,4 +12,8 @@
 }
 .p-float-label{
     width: 200px;
+}
+.main-form{
+    display: flex;
+    align-items: center;
 }
