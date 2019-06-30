@@ -11,7 +11,7 @@ import './constants/styles.css';
 const apiUrls = ({
     getData: (page, size) => `/api/sources?page=${page}&size=${size}`,
     getDataSort: (page, size, sort) => `/api/sources?page=${page}&size=${size}&sort=${sort}`,
-    filterbyName: (name,page, size, sort) => `api/sources/search/findBySearch?searchTerm=${name}&page=${page}&size=${size}&sort=${sort}`,
+    filterByName: (name,page, size, sort) => `api/sources/search/findBySearch?searchTerm=${name}&page=${page}&size=${size}&sort=${sort}`,
 });
 const sortSelectItems = [
     {label: 'id', value: 'id'},
@@ -97,7 +97,7 @@ export class DataList extends React.Component {
     };
     loadFilterData = (page=this.state.curPage) => {
         const sort = this.state.sortValue;
-        callApi(apiUrls.filterbyName(this.state.nameFilter, page, this.state.rows, sort)).then((data) => {
+        callApi(apiUrls.filterByName(this.state.nameFilter, page, this.state.rows, sort)).then((data) => {
             this.setState({
                 tableData: data._embedded.sources,
                 totalRecords: data.page.totalElements,
@@ -144,6 +144,18 @@ export class DataList extends React.Component {
                 this.loadData(this.state.firstPage, this.state.rowsNumberInput);
             }
         };
+    valueTemplate(option) {
+        if (!option.value) {
+            return option.label;
+        }
+        else {
+            return (
+                <div className="p-clearfix">
+                    <span style={{float:'right', margin:'.5em .25em 0 0'}}>{option.label} ↑</span>
+                </div>
+            );
+        }
+    }
     render() {
         const dataText = text => (
             <div className="header-text">
@@ -194,7 +206,9 @@ export class DataList extends React.Component {
                         value={this.state.sortValue}
                         options={sortSelectItems}
                         onChange={(e) => {this.onSort(e)}}
-                        placeholder="Сортировать по..."/>
+                        placeholder="Сортировать по..."
+                        itemTemplate={this.valueTemplate}
+                        />
                 </div>
                 <DataTable
                     value={this.state.tableData}
