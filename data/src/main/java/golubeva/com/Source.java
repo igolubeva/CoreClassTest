@@ -24,7 +24,8 @@ import lombok.Data;
 @NamedQuery(name = "Source.findBySearch",
 		query = "SELECT s FROM Source s WHERE " +
 				"LOWER(s.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-				"LOWER(s.svalue) LIKE LOWER(CONCAT('%', :searchTerm, '%'))"
+				"LOWER(s.svalue) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+				"LOWER(s.sourceId) LIKE LOWER(CONCAT('%', :searchTerm, '%'))"
 )
 @Data
 @Entity
@@ -32,7 +33,7 @@ public class Source {
 	private @Id @GeneratedValue Long id;
 	private String name;
 	private Number value;
-	private Number sourceId;
+	private String sourceId;
 	private String svalue;
 
 
@@ -41,7 +42,7 @@ public class Source {
 	public Source(Number sourceId, String name, Number value) {
 		this.name = name;
 		this.value = value;
-		this.sourceId = sourceId;
+		this.sourceId = sourceId.toString();
 		this.svalue = value.toString();
 	}
 }
