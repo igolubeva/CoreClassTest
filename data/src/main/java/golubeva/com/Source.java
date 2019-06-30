@@ -21,12 +21,7 @@ import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import lombok.Data;
 
-@NamedQuery(name = "Source.findBySearch",
-		query = "SELECT s FROM Source s WHERE " +
-				"LOWER(s.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-				"LOWER(s.svalue) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-				"LOWER(s.sourceId) LIKE LOWER(CONCAT('%', :searchTerm, '%'))"
-)
+
 @Data
 @Entity
 public class Source {

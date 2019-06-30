@@ -10,7 +10,7 @@ import './constants/styles.css';
 
 const apiUrls = ({
     getDataSort: (page, size, sort) => `/api/sources?page=${page}&size=${size}&sort=${sort}`,
-    filterByName: (name,page, size, sort) => `api/sources/search/findBySearch?searchTerm=${name}&page=${page}&size=${size}&sort=${sort}`,
+    filterByName: (name,page, size, sort) => `api/sources/search/find?searchTerm=${name}&page=${page}&size=${size}&sort=${sort}`,
 });
 
 const sortSelectItems = [
@@ -73,7 +73,7 @@ export class DataList extends React.Component {
                 [sortValue]: newDir},
         });
         if(this.state.nameFilter) {
-            this.loadFilterData();
+            this.loadFilterData(this.state.curPage, event.value);
         }else{
             this.loadSortData(this.state.curPage, event.value, newDir);
         }
@@ -82,8 +82,9 @@ export class DataList extends React.Component {
         sortOrder=this.state.sortDirection[sortValue]) => {
         const rows = this.getRowsCount();
         page = this.getPage(page, rows);
+        const sortParam = sortValue.concat(',', sortOrder);
         callApi(apiUrls.getDataSort(
-            page, rows, sortValue.concat(',', sortOrder))).then((data) => {
+            page, rows, sortParam)).then((data) => {
                 this.setState({
                     tableData: data._embedded.sources,
                     totalRecords: data.page.totalElements,
@@ -96,11 +97,12 @@ export class DataList extends React.Component {
             }).catch(() => {
         });
     };
-    loadFilterData = (page=this.state.curPage) => {
-        const sort = this.state.sortValue;
+    loadFilterData = (page=this.state.curPage, sortValue=this.state.sortValue) => {
+        const sortOrder=this.state.sortDirection[this.state.sortValue];
+        const sortParam = sortValue.concat(',', sortOrder);
         const rows = this.getRowsCount();
         page = this.getPage(page, rows);
-        callApi(apiUrls.filterByName(this.state.nameFilter, page, rows, sort)).then((data) => {
+        callApi(apiUrls.filterByName(this.state.nameFilter, page, rows, sortParam)).then((data) => {
             this.setState({
                 tableData: data._embedded.sources,
                 totalRecords: data.page.totalElements,

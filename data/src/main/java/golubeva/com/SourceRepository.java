@@ -17,6 +17,12 @@ import org.springframework.data.jpa.repository.Query;
 public interface SourceRepository extends PagingAndSortingRepository<Source, Long> {
     List<Source> findByName(@Param("name") String name);
     List<Source> findByNameContainingIgnoreCase(@Param("name") String name);
-    Page<Source> findBySearch(@Param("searchTerm") String searchTerm, Pageable page);
+
+    @Query("SELECT s FROM Source s WHERE " +
+            "LOWER(s.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(s.svalue) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(s.sourceId) LIKE LOWER(CONCAT('%', :searchTerm, '%'))"
+    )
+    Page<Source> find(String searchTerm, Pageable page);
 
 }
