@@ -21,7 +21,6 @@ mvnw.cmd
 /log/
 *.log*
 target/
-pom.xml
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.next
